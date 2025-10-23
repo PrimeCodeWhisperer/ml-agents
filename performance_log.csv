@@ -1,0 +1,7 @@
+timestamp,run_id,row_type,system_cpu_percent,system_mem_percent,tracked_cpu_percent,tracked_rss_mib,tracked_vms_mib,procs_tracked,pid,proc_name,proc_cpu_percent,proc_rss_mib,proc_vms_mib
+2025-10-23T21:00:05,,aggregate,14.1,80.0,0.0,0.0,0.0,0,,,,,
+2025-10-23T21:00:06,,aggregate,27.0,80.1,0.0,0.0,0.0,0,,,,,
+2025-10-23T21:00:07,,aggregate,11.8,80.2,0.0,0.0,0.0,0,,,,,
+2025-10-23T21:00:08,,aggregate,16.9,80.3,0.0,0.0,0.0,0,,,,,
+2025-10-23T21:00:09,,aggregate,6.5,80.2,0.0,0.0,0.0,0,,,,,
+2025-10-23T21:00:10,,aggregate,5.0,80.1,0.0,0.0,0.0,0,,,,,
