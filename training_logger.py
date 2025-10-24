@@ -1,6 +1,7 @@
 import os
 import argparse
 import pandas as pd
+from datetime import datetime
 from tensorboard.backend.event_processing import event_accumulator
 
 
@@ -67,10 +68,12 @@ def collectTrainingData(run_id):
                 avg_cpu = df["tracked_cpu_percent"].mean() 
                 avg_ram = df["tracked_rss_mib"].mean() 
                 max_ram = df["tracked_rss_mib"].max() 
-
+    current_time = datetime.now()
+    num_cores = os.cpu_count()
     # Creates the data set for the final CSV
     data = {
         "run_id": run_id,
+        "current_time": current_time,
         "mean_reward": get_last("Environment/Cumulative Reward"),
         "training_time_s": training_time_s,
         "total_steps": get_last_step("Environment/Cumulative Reward"),
@@ -79,6 +82,10 @@ def collectTrainingData(run_id):
         "avg_tracked_cpu_percent": avg_cpu,
         "avg_ram_usage": avg_ram,
         "max_ram_usage": max_ram,
+        "num_cores": num_cores,
+        "policy_loss": get_last("Losses/Policy Loss"),
+        "value_loss": get_last("Losses/Value Loss"),
+        "learning_rate": get_last("Policy/Learning Rate"),
     }
 
 
