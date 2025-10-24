@@ -29,6 +29,7 @@ def collectTrainingData(run_id):
 
     batch_size = None
     algorithm = None
+    scene = None
 
     reader = SummaryReader(event_path)
     df = reader.text
@@ -46,6 +47,12 @@ def collectTrainingData(run_id):
         lines = text.split('\n')
         for line in lines:
             line = line.strip()
+            if line.startswith('Hyperparameters'):
+                try: 
+                    words = line.strip().split()
+                    scene = words[-1]
+                except:
+                    scene = 'Unknown'
             if line.startswith('batch_size:'):
                 try:
                     batch_size = int(line.split(':')[1].strip())
@@ -108,6 +115,7 @@ def collectTrainingData(run_id):
     # Creates the data set for the final CSV
     data = {
         "run_id": run_id,
+        "scene": scene,
         "batch_size": batch_size,
         "algorithm": algorithm,
         "current_time": current_time,
@@ -121,7 +129,7 @@ def collectTrainingData(run_id):
         "max_ram_usage": max_ram,
         "num_cores": num_cores,
         "policy_loss": get_last("Losses/Policy Loss"),
-#        "value_loss": get_last("Lo"batch_size": batch_size,sses/Value Loss"),
+        "value_loss": get_last("Losses/Value Loss"),
         "learning_rate": get_last("Policy/Learning Rate"),
     }
 
