@@ -3,6 +3,7 @@ import argparse
 import pandas as pd
 from datetime import datetime
 from tensorboard.backend.event_processing import event_accumulator
+from tbparse import SummaryReader
 
 
 def collectTrainingData(run_id):
@@ -25,6 +26,40 @@ def collectTrainingData(run_id):
 
     ea = event_accumulator.EventAccumulator(event_path)
     ea.Reload()
+
+    batch_size = None
+    algorithm = None
+
+    reader = SummaryReader(event_path)
+    df = reader.text
+
+    print("Available text tags:")
+    print(df['tag'].tolist())
+
+    hyper_row = df[df['tag'].str.contains('Hyperparameters', case=False)]
+    
+    if	not hyper_row.empty:
+        text = hyper_row.iloc[0]['value']
+        print("Found hyperparameters text:")
+        print(text[:500])
+
+        lines = text.split('\n')
+        for line in lines:
+            line = line.strip()
+            if line.startswith('batch_size:'):
+                try:
+                    batch_size = int(line.split(':')[1].strip())
+                    print(f"Found batch_size: {batch_size}")
+                except:
+                    pass
+            if line.startswith('trainer_type:'):
+                try:
+                    algorithm = line.split(':')[1].strip()
+                    print(f"Found algorithm: {algorithm}")
+                except:
+                    pass
+
+
     #Gets the last output of the results data for a tag
     def get_last(tag):
         try:
@@ -73,6 +108,8 @@ def collectTrainingData(run_id):
     # Creates the data set for the final CSV
     data = {
         "run_id": run_id,
+        "batch_size": batch_size,
+        "algorithm": algorithm,
         "current_time": current_time,
         "mean_reward": get_last("Environment/Cumulative Reward"),
         "training_time_s": training_time_s,
@@ -84,7 +121,7 @@ def collectTrainingData(run_id):
         "max_ram_usage": max_ram,
         "num_cores": num_cores,
         "policy_loss": get_last("Losses/Policy Loss"),
-        "value_loss": get_last("Losses/Value Loss"),
+#        "value_loss": get_last("Lo"batch_size": batch_size,sses/Value Loss"),
         "learning_rate": get_last("Policy/Learning Rate"),
     }
 
