@@ -29,7 +29,18 @@ def collectTrainingData(run_id):
             return ea.Scalars(tag)[-1].value
         except Exception:
             return None
-
+        
+    def get_last_step(tag):
+        try:
+            return ea.Scalars(tag)[-1].step
+        except Exception:
+            return None
+    
+    try:
+        events = ea.Scalars("Environment/Cumulative Reward")
+        steps_per_second = (events[-1].step - events[0].step) / (events[-1].wall_time - events[0].wall_time)
+    except Exception:
+        steps_per_second = None
     # Approximates training time
     start_time = os.path.getctime(event_path)
     end_time = os.path.getmtime(event_path)
@@ -40,16 +51,16 @@ def collectTrainingData(run_id):
         "run_id": run_id,
         "mean_reward": get_last("Environment/Cumulative Reward"),
         "training_time_s": training_time_s,
-        "episode_length": get_last("Environment/Episode Length"),
+        "total_steps": get_last_step("Environment/Cumulative Reward"),
+        "steps_per_second": steps_per_second,
         "policy_loss": get_last("Losses/Policy Loss"),
         "value_loss": get_last("Losses/Value Loss"),
         "learning_rate": get_last("Policy/Learning Rate"),
         "entropy": get_last("Policy/Entropy"),
-        "beta": get_last("Policy/Beta"),
-        "epsilon": get_last("Policy/Epsilon"),
+        
     }
 
-    print(f"Collected data for {run_id}: {data}")
+    print(f"Collected data for {run_id}")
     return data
 
 
