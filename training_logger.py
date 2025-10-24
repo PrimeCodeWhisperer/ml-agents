@@ -1,5 +1,6 @@
 import os
 import argparse
+import psutil
 import pandas as pd
 from datetime import datetime
 from tensorboard.backend.event_processing import event_accumulator
@@ -112,6 +113,10 @@ def collectTrainingData(run_id):
                 max_ram = df["tracked_rss_mib"].max() 
     current_time = datetime.now()
     num_cores = os.cpu_count()
+
+    # Teads out the total amount of RAM
+    total_ram = psutil.virtual_memory().total
+    total_ram_gb = total_ram / (1024**3) 
     # Creates the data set for the final CSV
     data = {
         "run_id": run_id,
@@ -128,6 +133,7 @@ def collectTrainingData(run_id):
         "avg_ram_usage": avg_ram,
         "max_ram_usage": max_ram,
         "num_cores": num_cores,
+        "total_ram": total_ram_gb,
         "policy_loss": get_last("Losses/Policy Loss"),
         "value_loss": get_last("Losses/Value Loss"),
         "learning_rate": get_last("Policy/Learning Rate"),
