@@ -1,13 +1,10 @@
-# # Unity ML-Agents Toolkit
-# ## ML-Agent Learning
-"""Launches trainers for each External Brains in a Unity Environment."""
-
 import os
 import threading
 from typing import Dict, Set, List
 from collections import defaultdict
 
 import numpy as np
+import subprocess
 
 from mlagents_envs.logging_util import get_logger
 from mlagents.trainers.env_manager import EnvManager, EnvironmentStep
@@ -165,18 +162,35 @@ class TrainerController:
             self._create_trainer_and_manager(env_manager, behavior_id)
 
     @timed
+    @timed
+    @timed
     def start_learning(self, env_manager: EnvManager) -> None:
         self._create_output_path(self.output_path)
+        monitor_process = None
+
         try:
-            # Initial reset
+            resource_monitor_path = os.path.join(os.path.dirname(__file__), "resource_monitor.py")
+            monitor_outfile = os.path.join(self.output_path, f"{self.run_id}_resources.csv")
+
+            monitor_cmd = [
+                "python",
+                resource_monitor_path,
+                "--names", "python",
+                "--run-id", self.run_id,
+                "--outfile", monitor_outfile,
+                "--interval", "1",
+                "--stop-when-none"
+            ]
+            monitor_process = subprocess.Popen(monitor_cmd)
+
             self._reset_env(env_manager)
             self.param_manager.log_current_lesson()
             while self._not_done_training():
                 n_steps = self.advance(env_manager)
                 for _ in range(n_steps):
                     self.reset_env_if_ready(env_manager)
-            # Stop advancing trainers
             self.join_threads()
+
         except (
             KeyboardInterrupt,
             UnityCommunicationException,
@@ -184,20 +198,17 @@ class TrainerController:
             UnityCommunicatorStoppedException,
         ) as ex:
             self.join_threads()
-            self.logger.info(
-                "Learning was interrupted. Please wait while the graph is generated."
-            )
-            if isinstance(ex, KeyboardInterrupt) or isinstance(
-                ex, UnityCommunicatorStoppedException
-            ):
-                pass
-            else:
-                # If the environment failed, we want to make sure to raise
-                # the exception so we exit the process with an return code of 1.
+            self.logger.info("Learning was interrupted. Please wait while the graph is generated.")
+            if not isinstance(ex, (KeyboardInterrupt, UnityCommunicatorStoppedException)):
                 raise ex
         finally:
+            # Stop the resource monitor
+            if monitor_process:
+                monitor_process.terminate()
+                self.logger.info("Resource monitor stopped.")
             if self.train_model:
                 self._save_models()
+
 
     def end_trainer_episodes(self) -> None:
         # Reward buffers reset takes place only for curriculum learning
