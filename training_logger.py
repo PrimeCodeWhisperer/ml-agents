@@ -48,12 +48,6 @@ def collectTrainingData(run_id):
         lines = text.split('\n')
         for line in lines:
             line = line.strip()
-            if line.startswith('Hyperparameters'):
-                try: 
-                    words = line.strip().split()
-                    scene = words[-1]
-                except:
-                    scene = 'Unknown'
             if line.startswith('batch_size:'):
                 try:
                     batch_size = int(line.split(':')[1].strip())
@@ -67,6 +61,16 @@ def collectTrainingData(run_id):
                 except:
                     pass
 
+    # Get the scene variable -----------------------------------------------------
+    # The idea is to find the directory name in the base directory that is not called run_logs, this is always the name of the scene. 
+    items = os.listdir(base_dir)
+    #this line filters on only directories.
+    directories = [item for item in items if os.path.isdir(os.path.join(base_dir, item))]
+    if 'run_logs' in directories:directories.remove('run_logs')
+    if len(directories) == 1:
+        scene = directories[0]
+    else:
+        scene = 'Unknown'
 
     #Gets the last output of the results data for a tag
     def get_last(tag):
