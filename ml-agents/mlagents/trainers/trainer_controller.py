@@ -2,7 +2,7 @@ import os
 import threading
 from typing import Dict, Set, List
 from collections import defaultdict
-
+import sys
 import numpy as np
 import subprocess
 
@@ -170,10 +170,15 @@ class TrainerController:
 
         try:
             resource_monitor_path = os.path.join(os.path.dirname(__file__), "resource_monitor.py")
+            if not os.path.exists(resource_monitor_path):
+                raise FileNotFoundError(f"resource_monitor.py not found at {resource_monitor_path}")
+
             monitor_outfile = os.path.join(self.output_path, f"{self.run_id}_resources.csv")
 
+            print(f"CSV logging to: {monitor_outfile}")
             monitor_cmd = [
-                "python",
+                sys.executable,
+                "-u",
                 resource_monitor_path,
                 "--names", "python",
                 "--run-id", self.run_id,
@@ -181,34 +186,36 @@ class TrainerController:
                 "--interval", "1",
                 "--stop-when-none"
             ]
+            
+            print(f"Launching Resource Monitor: {' '.join(monitor_cmd)}")
             monitor_process = subprocess.Popen(monitor_cmd)
-
             self._reset_env(env_manager)
             self.param_manager.log_current_lesson()
+
             while self._not_done_training():
                 n_steps = self.advance(env_manager)
                 for _ in range(n_steps):
                     self.reset_env_if_ready(env_manager)
+
             self.join_threads()
 
-        except (
-            KeyboardInterrupt,
-            UnityCommunicationException,
-            UnityEnvironmentException,
-            UnityCommunicatorStoppedException,
-        ) as ex:
+        except (KeyboardInterrupt, UnityCommunicationException, UnityEnvironmentException, UnityCommunicatorStoppedException) as ex:
             self.join_threads()
-            self.logger.info("Learning was interrupted. Please wait while the graph is generated.")
+            self.logger.info("Learning interrupted. Generating graphs...")
             if not isinstance(ex, (KeyboardInterrupt, UnityCommunicatorStoppedException)):
                 raise ex
+
         finally:
-            # Stop the resource monitor
-            if monitor_process:
-                monitor_process.terminate()
-                self.logger.info("Resource monitor stopped.")
+            if monitor_process and monitor_process.poll() is None:
+                try:
+                    monitor_process.terminate()
+                except Exception:
+                    pass
+
+            self.logger.info("Resource monitor stopped.")
+
             if self.train_model:
                 self._save_models()
-
 
     def end_trainer_episodes(self) -> None:
         # Reward buffers reset takes place only for curriculum learning
