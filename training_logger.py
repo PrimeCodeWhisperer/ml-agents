@@ -12,7 +12,7 @@ def collectTrainingData(run_id):
     base_dir = os.path.join("results", run_id)
     if not os.path.exists(base_dir):
         raise FileNotFoundError(f"Run folder not found: {base_dir}")
-    
+
     event_path = None
     for root, _, files in os.walk(base_dir):
         for f in files:
@@ -39,7 +39,7 @@ def collectTrainingData(run_id):
     print(df['tag'].tolist())
 
     hyper_row = df[df['tag'].str.contains('Hyperparameters', case=False)]
-    
+
     if	not hyper_row.empty:
         text = hyper_row.iloc[0]['value']
         print("Found hyperparameters text:")
@@ -62,7 +62,7 @@ def collectTrainingData(run_id):
                     pass
 
     # Get the scene variable -----------------------------------------------------
-    # The idea is to find the directory name in the base directory that is not called run_logs, this is always the name of the scene. 
+    # The idea is to find the directory name in the base directory that is not called run_logs, this is always the name of the scene.
     items = os.listdir(base_dir)
     #this line filters on only directories.
     directories = [item for item in items if os.path.isdir(os.path.join(base_dir, item))]
@@ -85,42 +85,44 @@ def collectTrainingData(run_id):
         except Exception:
             return None
 
-    #Estimates the training time
-    start_time = os.path.getctime(event_path)
-    end_time = os.path.getmtime(event_path)
-    training_time_s = end_time - start_time
-    #calculates the amount of steps per second
+    #Estimates the training time and steps_per_second using event wall_time (more reliable than file times)
     try:
         events = ea.Scalars("Environment/Cumulative Reward")
-        steps_per_second = (
-            (events[-1].step) / training_time_s if training_time_s > 0 else None
-        )
+        if len(events) >= 2:
+            training_time_s = events[-1].wall_time - events[0].wall_time
+            steps_per_second = (
+                events[-1].step / training_time_s if training_time_s > 0 else None
+            )
+        else:
+            training_time_s = 0
+            steps_per_second = None
     except Exception:
+        training_time_s = 0
         steps_per_second = None
 
-    # Loads the resource csv file that the training_controller.py 
+    # Loads the resource csv file that the training_controller.py
     resource_file = os.path.join(base_dir, f"{run_id}_resources.csv")
     avg_system_cpu = avg_cpu = avg_ram = max_ram = None
     #Reads the resource csv file
     if os.path.exists(resource_file):
         df = pd.read_csv(resource_file)
         if not df.empty and "row_type" in df.columns:
-            
+
             df = df[df["row_type"] == "aggregate"]
             if "procs_tracked" in df.columns:
                 df = df[df["procs_tracked"] > 0]
 
             if not df.empty:
                 avg_system_cpu = df["system_cpu_percent"].mean()
-                avg_cpu = df["tracked_cpu_percent"].mean() 
-                avg_ram = df["tracked_rss_mib"].mean() 
-                max_ram = df["tracked_rss_mib"].max() 
+                avg_cpu = df["tracked_cpu_percent"].mean()
+                avg_ram = df["tracked_rss_mib"].mean()
+                max_ram = df["tracked_rss_mib"].max()
     current_time = datetime.now()
     num_cores = os.cpu_count()
 
     # Teads out the total amount of RAM
     total_ram = psutil.virtual_memory().total
-    total_ram_gb = total_ram / (1024**3) 
+    total_ram_gb = total_ram / (1024**3)
     # Creates the data set for the final CSV
     data = {
         "run_id": run_id,
