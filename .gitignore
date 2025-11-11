@@ -98,3 +98,12 @@ coverage.xml
 
 # yamato-parser temporary output files:
 .yamato/unfolded/
+
+# Credentials file
+credentials.json
+
+#Project folder
+Project
+
+# Local Training Logs
+*.csv
