@@ -8,6 +8,7 @@
 
 # Training environments
 /envs
+/ml-agents-venv/
 
 # Environemnt logfile
 *Project.log
@@ -107,3 +108,5 @@ Project
 
 # Local Training Logs
 *.csv
+# Build ignore
+Project/Build.app/
