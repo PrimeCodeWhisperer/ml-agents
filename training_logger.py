@@ -5,7 +5,7 @@ import pandas as pd
 from datetime import datetime
 from tensorboard.backend.event_processing import event_accumulator
 from tbparse import SummaryReader
-
+from csv_validator import csv_is_complete_embedded
 
 def collectTrainingData(run_id):
     #Finds the tensorboard file for the training data
@@ -166,6 +166,12 @@ def main():
 
     data = collectTrainingData(args.run_id)
     createCSV(data, args.out)
+    is_ok = csv_is_complete_embedded("training_logs.csv")
+    if(not is_ok):
+        raise SystemError("CSV has not been created succesfully")
+    else:
+        print("CSV file created correctly")
+
 
 
 if __name__ == "__main__":

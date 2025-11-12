@@ -113,9 +113,9 @@ def main():
         print(f"Completed Run {i}/{num_runs}")
         print(f"{'='*60}\n")
 
-    print(f"\n🎉 All {num_runs} training runs completed!")
-    print(f"📊 Results available in Google Sheets: {spreadsheet_name}")
-    print(f"💾 Local backup: {output_csv}")
+    print(f"\n All {num_runs} training runs completed!")
+    print(f" Results available in Google Sheets: {spreadsheet_name}")
+    print(f" Local backup: {output_csv}")
 
 
 if __name__ == "__main__":
