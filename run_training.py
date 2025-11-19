@@ -3,18 +3,20 @@ import datetime
 import os
 import sys
 from upload_to_sheets import upload_results_to_sheets
+from dotenv import load_dotenv
 
 
 def main():
     # === Configuration ===
+    load_dotenv()
 
     if len(sys.argv) != 2:
         print("2 arguments required", file=sys.stderr)
         sys.exit(1)
 
 
-    unity_env_path = "Project/Build.app"  # path to your Unity build (.app), (this changes depending on your build)
-    config_file = "config/ppo/3DBall.yaml"  # path to your ML-Agents config YAML
+    unity_env_path = os.getenv('UNITY_ENV_PATH')  # path to your Unity build (.app), (this changes depending on your build)
+    config_file = os.getenv('CONFIG_PATH')  # path to your ML-Agents config YAML
     base_port = 5004
     num_runs = int(sys.argv[1])
 

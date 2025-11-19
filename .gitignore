@@ -110,3 +110,7 @@ Project
 *.csv
 # Build ignore
 Project/Build.app/
+
+# Environment files
+.env
+
