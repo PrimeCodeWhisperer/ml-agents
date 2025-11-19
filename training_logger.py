@@ -2,6 +2,7 @@ import os
 import argparse
 import psutil
 import pandas as pd
+import platform
 from datetime import datetime
 from tensorboard.backend.event_processing import event_accumulator
 from tbparse import SummaryReader
@@ -103,6 +104,10 @@ def collectTrainingData(run_id):
     # Loads the resource csv file that the training_controller.py
     resource_file = os.path.join(base_dir, f"{run_id}_resources.csv")
     avg_system_cpu = avg_cpu = avg_ram = max_ram = None
+
+    # Gets operating system information
+    operating_system=platform.platform(terse=True)
+
     #Reads the resource csv file
     if os.path.exists(resource_file):
         df = pd.read_csv(resource_file)
@@ -143,6 +148,7 @@ def collectTrainingData(run_id):
         "policy_loss": get_last("Losses/Policy Loss"),
         "value_loss": get_last("Losses/Value Loss"),
         "learning_rate": get_last("Policy/Learning Rate"),
+        "operating_system":operating_system,
     }
 
 
