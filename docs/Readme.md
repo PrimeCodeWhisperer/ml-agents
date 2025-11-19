@@ -59,7 +59,7 @@ pip install gspread
 pip install oauth2client
 ```
 
-Place the provided credentials.json file in the root directory and you're good to go.
+Place the provided `credentials.json` file in the root directory and you're good to go.
 
 ### Environment file
 
