@@ -102,6 +102,27 @@ python run_training.py 10
 
 You will fin the resulds in the shared google sheets document
 
+# Troubleshooting
+
+In case you get stuck and the virtual environment doesn't work anymore execute the following commands
+
+```
+pip uninstall torch onnxscript -y
+pip install torch==2.1.1
+pip install onnx==1.15.0
+pip install protobuf==3.20.3
+
+pip uninstall mlagents -y
+pip install -e .
+
+pip uninstall -y mlagents mlagents-envs
+
+pip install -e .\ml-agents
+pip install -e .\ml-agents-envs
+```
+
+If the problem is not fixed try removing your virtual environment and repeat the steps from the beginning
+
 # To use TensorBoard and see the results:
 First download TensorBoard by: pip install tensorboard
 Then after it's installed: tensorboard --logdir results
