@@ -106,7 +106,7 @@ def collectTrainingData(run_id):
     avg_system_cpu = avg_cpu = avg_ram = max_ram = None
 
     # Gets operating system information
-    operating_system=platform.platform(terse=True)
+    operating_system=platform.platform(terse=False)
 
     #Reads the resource csv file
     if os.path.exists(resource_file):
