@@ -143,7 +143,7 @@ def collectTrainingData(run_id, reward_threshold=REWARD_THRESHOLD):
         "learning_rate": get_last("Policy/Learning Rate"),
         "operating_system": platform.platform(terse=True),
         "cpu_model": platform.processor(),
-        # --- New threshold fields ---
+       
         "steps_to_threshold": steps_to_threshold,
         "threshold_reached": threshold_reached
     }
