@@ -102,6 +102,13 @@ def collectTrainingData(run_id, reward_threshold=REWARD_THRESHOLD):
     resource_file = os.path.join(base_dir, f"{run_id}_resources.csv")
     avg_system_cpu = avg_cpu = avg_ram = max_ram = None
 
+<<<<<<< HEAD
+=======
+    # Gets operating system information
+    operating_system=platform.platform(terse=False)
+
+    #Reads the resource csv file
+>>>>>>> 8dc451ade8a518c5e2005d912b8cd68ff2172372
     if os.path.exists(resource_file):
         df_res = pd.read_csv(resource_file)
         if not df_res.empty and "row_type" in df_res.columns:
