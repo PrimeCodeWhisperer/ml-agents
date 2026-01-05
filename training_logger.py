@@ -149,6 +149,7 @@ def collectTrainingData(run_id):
         "value_loss": get_last("Losses/Value Loss"),
         "learning_rate": get_last("Policy/Learning Rate"),
         "operating_system":operating_system,
+        "cpu_model":platform.processor()
     }
 
 
