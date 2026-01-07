@@ -14,54 +14,53 @@ class random_forrest:
         self.model_columns = [] 
 
     def train(self, data_path):
-        print(f"Loading data from {data_path}...")
+        print(f"Loading {data_path}")
         
-        #specific check for excel vs csv
+        #check for excel or csv
         try:
             if data_path.endswith('.xlsx'):
                 df = pd.read_excel(data_path, engine='openpyxl')
             else:
                 df = pd.read_csv(data_path)
         except Exception as e:
-            print(f"Could not load file: {e}")
+            print(f"File cannot be loaded: {e}")
             return
 
-        #define what we want to use for training
+        #features we want to use for training
         features = ['batch_size', 'num_cores', 'total_ram', 'scene', 'algorithm']
+        #output we want to predict
         target = 'training_time_s'
 
-        #basic validation to make sure columns exist
+        #check is all columns exist
         missing = [c for c in features + [target] if c not in df.columns]
         if missing:
-            print(f"Missing columns in dataset: {missing}")
+            print(f"Those columns are missing: {missing}")
             return
 
         X = df[features]
         y = df[target]
 
-        #convert text columns (like 'scene') into numbers
+        #convert collumns into numbers
         X = pd.get_dummies(X)
 
         #save columns list so we can match the structure later when predicting
         self.model_columns = list(X.columns)
 
-        #split: 80% for training, 20% for testing
+        #split data into  80% for training and 20% for testing
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-        print("Training model...")
+        print("Model training in progress...")
         self.model.fit(X_train, y_train)
 
-        #check how well it did
+        #check performance
         predictions = self.model.predict(X_test)
         acc = r2_score(y_test, predictions)
         err = mean_absolute_error(y_test, predictions)
 
-        print("Done.")
-        print(f"Accuracy (R2): {acc:.2f}")
-        print(f"Avg Error: +/- {err:.1f} seconds")
+        print(f"Accuracy: {acc:.2f}")
+        print(f"Average Error: {err:.1f} seconds")
 
-    def save_model(self, filename="time_predictor_model.pkl"):
-        #save both the model and column layout
+    def save_model(self, filename="trained_data.pkl"):
         payload = {
             'model': self.model,
             'columns': self.model_columns
@@ -69,7 +68,7 @@ class random_forrest:
         joblib.dump(payload, filename)
         print(f"Saved model to {filename}")
 
-    def load_model(self, filename="time_predictor_model.pkl"):
+    def load_model(self, filename="trained_data.pkl"):
         try:
             data = joblib.load(filename)
             self.model = data['model']
@@ -92,7 +91,7 @@ class random_forrest:
             'algorithm': algorithm
         }])
 
-        #convert to numbers and align columns with the trained model
+        #convert to numbers
         input_row = pd.get_dummies(input_row)
         input_row = input_row.reindex(columns=self.model_columns, fill_value=0)
 
@@ -105,9 +104,9 @@ if __name__ == "__main__":
     path = os.getenv('TRAINING_DATA_PATH')
 
     if path:
-        ai = random_forrest()
-        ai.train(path)
-        ai.save_model("trained_data.pkl")
+        algo = random_forrest()
+        algo.train(path)
+        algo.save_model("trained_data.pkl")
 
     else:
         print("You need to have TRAINING_DATA_PATH specified in .env file")
