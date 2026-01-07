@@ -1,5 +1,6 @@
 import os
 import pandas as pd
+from dotenv import load_dotenv
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.preprocessing import OneHotEncoder
@@ -8,8 +9,8 @@ import joblib
 
 class random_forrest:
     def __init__(self):
-        #we use a regressor since we are predicting a continuous number (time)
-        self.model = RandomForestRegressor(n_estimators=100, random_state=42)
+        #regressor is useful because we predict continuous time values
+        self.model = RandomForestRegressor(n_estimators=100, random_state=95) #choose number of trees and random seed
         self.model_columns = [] 
 
     def train(self, data_path):
@@ -97,10 +98,9 @@ class random_forrest:
 
         return self.model.predict(input_row)[0]
 
-#usage example
-if __name__ == "__main__":
-    from dotenv import load_dotenv
 
+if __name__ == "__main__":
+    #getting path to data
     load_dotenv()
     path = os.getenv('TRAINING_DATA_PATH')
 
@@ -109,9 +109,5 @@ if __name__ == "__main__":
         ai.train(path)
         ai.save_model("trained_data.pkl")
 
-        # Quick test
-        pred = ai.predict_new(1024, 8, 16, "Soccer", "PPO")
-        if pred:
-            print(f"Predicted time: {pred:.1f}s")
     else:
-        print("Check your .env file for TRAINING_DATA_PATH")
+        print("You need to have TRAINING_DATA_PATH specified in .env file")
