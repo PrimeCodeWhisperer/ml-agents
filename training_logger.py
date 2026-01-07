@@ -9,7 +9,7 @@ from tbparse import SummaryReader
 from csv_validator import csv_is_complete_embedded
 
 # Set your desired reward threshold here
-REWARD_THRESHOLD = 1.2
+REWARD_THRESHOLD = 100
 
 def collectTrainingData(run_id, reward_threshold=REWARD_THRESHOLD):
     # Finds the tensorboard file for the training data
@@ -35,6 +35,7 @@ def collectTrainingData(run_id, reward_threshold=REWARD_THRESHOLD):
     batch_size = None
     algorithm = None
     scene = None
+    hyper_learning_rate = None
 
     reader = SummaryReader(event_path)
     df = reader.text
@@ -53,6 +54,12 @@ def collectTrainingData(run_id, reward_threshold=REWARD_THRESHOLD):
             if line.startswith('trainer_type:'):
                 try:
                     algorithm = line.split(':')[1].strip()
+                except:
+                    pass
+
+            if line.startswith('learning_rate:'):
+                try:
+                    hyper_learning_rate = line.split(':')[1].strip()
                 except:
                     pass
 
@@ -142,6 +149,7 @@ def collectTrainingData(run_id, reward_threshold=REWARD_THRESHOLD):
         "value_loss": get_last("Losses/Value Loss"),
         "learning_rate": get_last("Policy/Learning Rate"),
         "operating_system": platform.platform(terse=True),
+         "HyperParameter learning rate": hyper_learning_rate,
         "cpu_model": platform.processor(),
        
         "steps_to_threshold": steps_to_threshold,
