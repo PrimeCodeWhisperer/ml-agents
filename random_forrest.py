@@ -27,7 +27,7 @@ class random_forrest:
             return
 
         #features we want to use for training
-        features = ['batch_size', 'num_cores', 'total_ram', 'scene', 'algorithm']
+        features = ['batch_size', 'num_cores', 'total_ram', 'scene', 'algorithm', 'total_steps']
         #output we want to predict
         target = 'training_time_s'
 
@@ -77,7 +77,7 @@ class random_forrest:
         except FileNotFoundError:
             print("Model file not found.")
 
-    def predict_new(self, batch_size, cores, ram, scene, algorithm):
+    def predict_new(self, batch_size, cores, ram, scene, algorithm, steps):
         if not self.model_columns:
             print("Model not ready.")
             return None
@@ -88,7 +88,8 @@ class random_forrest:
             'num_cores': cores,
             'total_ram': ram,
             'scene': scene,
-            'algorithm': algorithm
+            'algorithm': algorithm,
+            'total_steps': steps
         }])
 
         #convert to numbers
