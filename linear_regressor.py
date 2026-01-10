@@ -6,7 +6,7 @@ from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_absolute_error, r2_score
 import joblib
 
-class linear_regression_model:
+class LinearRegressionModel:
     def __init__(self):
         self.model = LinearRegression() 
         self.model_columns = [] 
@@ -107,7 +107,7 @@ if __name__ == "__main__":
     path = os.getenv('TRAINING_DATA_PATH')
 
     if path:
-        algo = linear_regression_model()
+        algo = LinearRegressionModel()
         algo.train(path)
         algo.save_model("trained_linear_model.pkl")
     else:
