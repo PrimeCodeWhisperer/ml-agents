@@ -4,6 +4,7 @@ import os
 import sys
 from upload_to_sheets import upload_results_to_sheets
 from dotenv import load_dotenv
+from utils.temp_config import temp_config_file
 
 
 def main():
@@ -34,28 +35,30 @@ def main():
         timestamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
         run_id = f"testrun-{timestamp}"
 
-        # Build mlagents-learn command
-        trainer_cmd = [
-            "mlagents-learn",
-            config_file,
-            f"--run-id={run_id}",
-            "--env", unity_env_path,
-            "--no-graphics",
-            "--force",
-            "--base-port", str(base_port)
-        ]
+        base_config = config_file or os.getenv("CONFIG_PATH") or "config/ppo/3DBallHard.yaml"
+        with temp_config_file(base_config, run_id=run_id) as temp_config_path:
+            # Build mlagents-learn command
+            trainer_cmd = [
+                "mlagents-learn",
+                temp_config_path,
+                "--run-id", run_id,
+                "--env", unity_env_path,
+                "--no-graphics",
+                "--force",
+                "--base-port", str(base_port)
+            ]
 
-        print(f"\n[Step 1/{3}] Launching ML-Agents training...")
-        print(f"Run ID: {run_id}")
+            print(f"\n[Step 1/{3}] Launching ML-Agents training...")
+            print(f"Run ID: {run_id}")
 
-        # Run the trainer
-        try:
-            subprocess.run(trainer_cmd, check=True)
-            print("\n✓ Training finished successfully.")
-        except subprocess.CalledProcessError as e:
-            print(f"\n✗ Training process failed with error code {e.returncode}")
-            print(f"Skipping to next run...")
-            continue  # Skip to next iteration instead of returning
+            # Run the trainer
+            try:
+                subprocess.run(trainer_cmd, check=True)
+                print("\n✓ Training finished successfully.")
+            except subprocess.CalledProcessError as e:
+                print(f"\n✗ Training process failed with error code {e.returncode}")
+                print(f"Skipping to next run...")
+                continue  # Skip to next iteration instead of returning
 
         # Launch training logger after run
         print(f"\n[Step 2/3] Generating training logs from TensorBoard data...")
