@@ -7,7 +7,8 @@ from sklearn.metrics import mean_absolute_error, r2_score
 import joblib
 
 class LinearRegressionModel:
-    def __init__(self):
+    def __init__(self, target_column):
+        self.target = target_column
         self.model = LinearRegression() 
         self.model_columns = [] 
 
@@ -31,15 +32,15 @@ class LinearRegressionModel:
             'total_ram', 
             'total_steps'
         ]
-        target = 'training_time_s'
+        
 
-        missing = [c for c in features + [target] if c not in df.columns]
+        missing = [c for c in features + [self.target] if c not in df.columns]
         if missing:
             print(f"Those columns are missing: {missing}")
             return
 
         X = df[features]
-        y = df[target]
+        y = df[self.target]
 
         # so this drop_first only applies to the categorical columns. i leaves all the numerical ones alone.
         # so the get_dummies puts it in a binary representation and the nthe drop_first drops the first one. 
@@ -107,7 +108,7 @@ if __name__ == "__main__":
     path = os.getenv('TRAINING_DATA_PATH')
 
     if path:
-        algo = LinearRegressionModel()
+        algo = LinearRegressionModel(target_column="training_time_s")
         algo.train(path)
         algo.save_model("trained_linear_model.pkl")
     else:
