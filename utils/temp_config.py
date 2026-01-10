@@ -22,10 +22,10 @@ def _randomize_behavior(bcfg: dict) -> None:
     hp = bcfg.setdefault("hyperparameters", {})
     hp["batch_size"] = int(random.choice([32, 64, 120, 128, 256]))
     hp["buffer_size"] = int(max(hp["batch_size"] * random.choice([8, 10, 20]), random.choice([1000, 5000, 10000])))
-    hp["learning_rate"] = float(f"{_rand_log_uniform(1e-5, 3e-3):.6f}")
+    hp["learning_rate"] = float(f"{_rand_log_uniform(1e-4, 3e-3):.6f}")
     hp["beta"] = float(f"{random.uniform(1e-4, 1e-2):.6f}")
     hp["epsilon"] = float(f"{random.uniform(0.08, 0.3):.3f}")
-    hp.setdefault("num_epoch", 3)
+    hp["num_epoch"]=random.randint(1,5)
 
     net = bcfg.setdefault("network_settings", {})
     net["hidden_units"] = int(random.choice([64, 128, 256]))
@@ -33,8 +33,28 @@ def _randomize_behavior(bcfg: dict) -> None:
 
     if "max_steps" in bcfg:
         base = int(bcfg.get("max_steps", 5_00_000))
-        delta = int(base * random.uniform(-0.5, 0.5))
-        bcfg["max_steps"] = max(10_000, min(2_000_000, base + delta))
+        delta = int(base * random.uniform(0.0, 1.0))
+        bcfg["max_steps"] = max(base, min(2_000_000, base + delta))
+
+    # reward_signals.extrinsic.* (if present)
+    rs = bcfg.setdefault("reward_signals", {}).setdefault("extrinsic", {})
+
+    rs["gamma"] = float(f"{random.uniform(0.9, 0.999):.6f}")
+
+    rs["strength"] = float(f"{random.uniform(0.5, 2.0):.3f}")
+
+    if "keep_checkpoints" in bcfg:
+        bcfg["keep_checkpoints"] = int(random.randint(1, 10))
+
+    if "time_horizon" in bcfg:
+        base_th = int(bcfg.get("time_horizon", 1000))
+        delta_th = int(base_th * random.uniform(-0.5, 0.5))
+        bcfg["time_horizon"] = max(1, base_th + delta_th)
+
+    if "summary_freq" in bcfg:
+        base_sf = int(bcfg.get("summary_freq", 1000))
+        delta_sf = int(base_sf * random.uniform(-0.5, 0.5))
+        bcfg["summary_freq"] = max(1, base_sf + delta_sf)
 
 def generate_temp_config(base_config_path: str, run_id: Optional[str] = None, seed: Optional[int] = None) -> str:
     """
