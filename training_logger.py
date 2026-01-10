@@ -36,6 +36,22 @@ def collectTrainingData(run_id, reward_threshold=REWARD_THRESHOLD):
     algorithm = None
     scene = None
     hyper_learning_rate = None
+    buffer_size = None
+    beta = None
+    epsilon = None
+    lambd = None
+    num_epoch = None
+    learning_rate_schedule = None
+    normalize = None
+    hidden_units = None
+    num_layers = None
+    vis_encode_type = None
+    gamma = None
+    strength = None
+    keep_checkpoints = None
+    max_steps = None
+    time_horizon = None
+    summary_freq = None
 
     reader = SummaryReader(event_path)
     df = reader.text
@@ -46,20 +62,108 @@ def collectTrainingData(run_id, reward_threshold=REWARD_THRESHOLD):
         lines = text.split('\n')
         for line in lines:
             line = line.strip()
+
+            # Hyperparameters
             if line.startswith('batch_size:'):
                 try:
-                    batch_size = int(line.split(':')[1].strip())
+                    batch_size = int(line.split(':',1)[1].strip())
                 except:
                     pass
             if line.startswith('trainer_type:'):
                 try:
-                    algorithm = line.split(':')[1].strip()
+                    algorithm = line.split(':',1)[1].strip()
                 except:
                     pass
 
             if line.startswith('learning_rate:'):
                 try:
-                    hyper_learning_rate = line.split(':')[1].strip()
+                    hyper_learning_rate = line.split(':',1)[1].strip()
+                except:
+                    pass
+
+            if line.startswith('buffer_size:'):
+                try:
+                    buffer_size = int(line.split(':',1)[1].strip())
+                except:
+                    pass
+            if line.startswith('beta:'):
+                try:
+                    beta = float(line.split(':',1)[1].strip())
+                except:
+                    pass
+            if line.startswith('epsilon:'):
+                try:
+                    epsilon = float(line.split(':',1)[1].strip())
+                except:
+                    pass
+            if line.startswith('lambd:'):
+                try:
+                    lambd = float(line.split(':',1)[1].strip())
+                except:
+                    pass
+            if line.startswith('num_epoch:'):
+                try:
+                    num_epoch = int(line.split(':',1)[1].strip())
+                except:
+                    pass
+            if line.startswith('learning_rate_schedule:'):
+                try:
+                    learning_rate_schedule = line.split(':',1)[1].strip()
+                except:
+                    pass
+
+            # Network settings
+            if line.startswith('normalize:'):
+                try:
+                    v = line.split(':',1)[1].strip().lower()
+                    normalize = True if v == 'true' else False if v == 'false' else None
+                except:
+                    pass
+            if line.startswith('hidden_units:'):
+                try:
+                    hidden_units = int(line.split(':',1)[1].strip())
+                except:
+                    pass
+            if line.startswith('num_layers:'):
+                try:
+                    num_layers = int(line.split(':',1)[1].strip())
+                except:
+                    pass
+            if line.startswith('vis_encode_type:'):
+                try:
+                    vis_encode_type = line.split(':',1)[1].strip()
+                except:
+                    pass
+
+            # Reward signal and other top-level training params
+            if line.startswith('gamma:'):
+                try:
+                    gamma = float(line.split(':',1)[1].strip())
+                except:
+                    pass
+            if line.startswith('strength:'):
+                try:
+                    strength = float(line.split(':',1)[1].strip())
+                except:
+                    pass
+            if line.startswith('keep_checkpoints:'):
+                try:
+                    keep_checkpoints = int(line.split(':',1)[1].strip())
+                except:
+                    pass
+            if line.startswith('max_steps:'):
+                try:
+                    max_steps = int(line.split(':',1)[1].strip())
+                except:
+                    pass
+            if line.startswith('time_horizon:'):
+                try:
+                    time_horizon = int(line.split(':',1)[1].strip())
+                except:
+                    pass
+            if line.startswith('summary_freq:'):
+                try:
+                    summary_freq = int(line.split(':',1)[1].strip())
                 except:
                     pass
 
@@ -149,11 +253,26 @@ def collectTrainingData(run_id, reward_threshold=REWARD_THRESHOLD):
         "value_loss": get_last("Losses/Value Loss"),
         "learning_rate": get_last("Policy/Learning Rate"),
         "operating_system": platform.platform(terse=True),
-         "HyperParameter learning rate": hyper_learning_rate,
+        "hyper_learning_rate": hyper_learning_rate,
         "cpu_model": platform.processor(),
-       
         "steps_to_threshold": steps_to_threshold,
-        "threshold_reached": threshold_reached
+        "threshold_reached": threshold_reached,
+        "buffer_size": buffer_size,
+        "beta": beta,
+        "epsilon": epsilon,
+        "lambd": lambd,
+        "num_epoch": num_epoch,
+        "learning_rate_schedule": learning_rate_schedule,
+        "normalize": normalize,
+        "hidden_units": hidden_units,
+        "num_layers": num_layers,
+        "vis_encode_type": vis_encode_type,
+        "gamma": gamma,
+        "strength": strength,
+        "keep_checkpoints": keep_checkpoints,
+        "max_steps": max_steps,
+        "time_horizon": time_horizon,
+        "summary_freq": summary_freq
     }
 
     return data
