@@ -55,11 +55,11 @@ class random_forrest:
 
         #check performance
         predictions = self.model.predict(X_test)
-        acc = r2_score(y_test, predictions)
+        r2_acc = r2_score(y_test, predictions)
         err = mean_absolute_error(y_test, predictions)
 
-        print(f"Accuracy: {acc:.2f}")
-        print(f"Average Error: {err:.1f} seconds")
+        print(f"Accuracy: {r2_acc:.2f}")
+        print(f"Average Error: {err:.1f}")
 
     def save_model(self, filename="trained_data.pkl"):
         payload = {
