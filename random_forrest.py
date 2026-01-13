@@ -8,10 +8,11 @@ from sklearn.metrics import mean_absolute_error, r2_score
 import joblib
 
 class random_forrest:
-    def __init__(self):
+    def __init__(self, target):
         #regressor is useful because we predict continuous time values
         self.model = RandomForestRegressor(n_estimators=100, random_state=95) #choose number of trees and random seed
         self.model_columns = [] 
+        self.target = target
 
     def train(self, data_path):
         print(f"Loading {data_path}")
@@ -29,16 +30,16 @@ class random_forrest:
         #features we want to use for training
         features = ['batch_size', 'num_cores', 'total_ram', 'scene', 'algorithm', 'total_steps']
         #output we want to predict
-        target = 'training_time_s'
+    
 
         #check is all columns exist
-        missing = [c for c in features + [target] if c not in df.columns]
+        missing = [c for c in features + [self.target] if c not in df.columns]
         if missing:
             print(f"Those columns are missing: {missing}")
             return
 
         X = df[features]
-        y = df[target]
+        y = df[self.target]
 
         #convert collumns into numbers
         X = pd.get_dummies(X)
@@ -105,7 +106,7 @@ if __name__ == "__main__":
     path = os.getenv('TRAINING_DATA_PATH')
 
     if path:
-        algo = random_forrest()
+        algo = random_forrest('training_time_s')
         algo.train(path)
         algo.save_model("trained_data.pkl")
 
