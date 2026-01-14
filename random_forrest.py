@@ -1,16 +1,16 @@
 import os
+import argparse
 import pandas as pd
 from dotenv import load_dotenv
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.preprocessing import OneHotEncoder
 from sklearn.metrics import mean_absolute_error, r2_score
 import joblib
 
 class random_forrest:
-    def __init__(self, target):
+    def __init__(self, target, n_trees, seed):
         #regressor is useful because we predict continuous time values
-        self.model = RandomForestRegressor(n_estimators=100, random_state=95) #choose number of trees and random seed
+        self.model = RandomForestRegressor(n_estimators=n_trees, random_state=seed) #choose number of trees and random seed
         self.model_columns = [] 
         self.target = target
 
@@ -25,6 +25,7 @@ class random_forrest:
                 df = pd.read_csv(data_path)
         except Exception as e:
             print(f"File cannot be loaded: {e}")
+            print(f"Suggest to check TRAINING_DATA_PATH in your .env file.")
             return
 
         #features we want to use for training
@@ -58,10 +59,11 @@ class random_forrest:
         r2_acc = r2_score(y_test, predictions)
         err = mean_absolute_error(y_test, predictions)
 
-        print(f"Accuracy: {r2_acc:.2f}")
-        print(f"Average Error: {err:.1f}")
+        print(f"Accuracy: {r2_acc * 100:.1f}%")
+        print(f"Average Error ({self.target}): {err:.1f}")
 
-    def save_model(self, filename="trained_data.pkl"):
+    #save the model to file
+    def save_model(self, filename):
         payload = {
             'model': self.model,
             'columns': self.model_columns
@@ -69,46 +71,31 @@ class random_forrest:
         joblib.dump(payload, filename)
         print(f"Saved model to {filename}")
 
-    def load_model(self, filename="trained_data.pkl"):
-        try:
-            data = joblib.load(filename)
-            self.model = data['model']
-            self.model_columns = data['columns']
-            print(f"Loaded model from {filename}")
-        except FileNotFoundError:
-            print("Model file not found.")
-
-    def predict_new(self, batch_size, cores, ram, scene, algorithm, steps):
-        if not self.model_columns:
-            print("Model not ready.")
-            return None
-
-        #create a single row dataframe for the new input
-        input_row = pd.DataFrame([{
-            'batch_size': batch_size,
-            'num_cores': cores,
-            'total_ram': ram,
-            'scene': scene,
-            'algorithm': algorithm,
-            'total_steps': steps
-        }])
-
-        #convert to numbers
-        input_row = pd.get_dummies(input_row)
-        input_row = input_row.reindex(columns=self.model_columns, fill_value=0)
-
-        return self.model.predict(input_row)[0]
-
 
 if __name__ == "__main__":
     #getting path to data
     load_dotenv()
     path = os.getenv('TRAINING_DATA_PATH')
+    
+    parser = argparse.ArgumentParser(
+        usage="python random_forrest.py --target <exact name of target column> --trees <number of decision trees> --seed <random seed number for reproducibility>",
+    )
+    
+    parser.add_argument("--target", type=str, default="training_time_s", help="The column name to predict (default: training_time_s)")
+    parser.add_argument("--trees", type=int, default=100, help="Number of trees in the forest (default: 100)")
+    parser.add_argument("--seed", type=int, default=95, help="Random seed for reproducibility (default: 95)")
+    
+    args = parser.parse_args()
 
     if path:
-        algo = random_forrest('training_time_s')
+        print(f"Configuration: Target={args.target}, Trees={args.trees}, Seed={args.seed}")
+        
+        #initialize with arguments
+        algo = random_forrest(args.target, args.trees, args.seed)
         algo.train(path)
-        algo.save_model("trained_data.pkl")
+        
+        #save sklearn model (decision tree itself) to file. The file can be loaded later for predictions.
+        algo.save_model(f"model_{args.target}.pkl")
 
     else:
         print("You need to have TRAINING_DATA_PATH specified in .env file")
