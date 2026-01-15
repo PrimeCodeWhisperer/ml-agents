@@ -1,3 +1,4 @@
+import argparse
 import os
 import pandas as pd
 from dotenv import load_dotenv
@@ -7,8 +8,8 @@ from sklearn.metrics import mean_absolute_error, r2_score
 import joblib
 
 class LinearRegressionModel:
-    def __init__(self, target_column):
-        self.target = target_column
+    def __init__(self, target):
+        self.target = target
         self.model = LinearRegression() 
         self.model_columns = [] 
 
@@ -22,6 +23,7 @@ class LinearRegressionModel:
                 df = pd.read_csv(data_path)
         except Exception as e:
             print(f"File cannot be loaded: {e}")
+            print(f"Suggest to check TRAINING_DATA_PATH in your .env file.")
             return
 
         features = [
@@ -63,7 +65,7 @@ class LinearRegressionModel:
         print(f"Accuracy (R2), negative means the data is not linear: {acc:.2f}")
         print(f"Average Error: {err:.1f} seconds")
 
-    def save_model(self, filename="trained_linear_model.pkl"):
+    def save_model(self, filename):
         payload = {
             'model': self.model,
             'columns': self.model_columns
@@ -71,45 +73,25 @@ class LinearRegressionModel:
         joblib.dump(payload, filename)
         print(f"Saved model to {filename}")
 
-    def load_model(self, filename="trained_linear_model.pkl"):
-        try:
-            data = joblib.load(filename)
-            self.model = data['model']
-            self.model_columns = data['columns']
-            print(f"Loaded model from {filename}")
-        except FileNotFoundError:
-            print("Model file not found.")
-
-    def predict_new(self, batch_size, cores, ram, scene, algorithm):
-        if not self.model_columns:
-            print("Model not ready.")
-            return None
-
-        input_row = pd.DataFrame([{
-            'batch_size': batch_size,
-            'num_cores': cores,
-            'total_ram': ram,
-            'scene': scene,
-            'algorithm': algorithm
-        }])
-
-        # again drop first to correctly use the categorical data. 
-        input_row = pd.get_dummies(input_row, drop_first=True)
-        
-        # This reindex makes sure the same columns are made that the model can process. 
-        # so the columns we dropped to avoid colinearity get added back here with 0 so that the model still gets the columns it can work with.
-        # its to prevent crashes.
-        input_row = input_row.reindex(columns=self.model_columns, fill_value=0)
-
-        return self.model.predict(input_row)[0]
 
 if __name__ == "__main__":
     load_dotenv()
     path = os.getenv('TRAINING_DATA_PATH')
 
+    parser = argparse.ArgumentParser(
+        usage="python linear_regression.py --target <exact name of target column>",
+    )
+    
+    parser.add_argument("--target", type=str, default="training_time_s", help="The column name to predict (default: training_time_s)")
+    
+    args = parser.parse_args()
+
     if path:
-        algo = LinearRegressionModel(target_column="training_time_s")
+        print(f"Configuration: Target={args.target}")
+
+        algo = LinearRegressionModel(target=args.target)
         algo.train(path)
-        algo.save_model("trained_linear_model.pkl")
+        
+        algo.save_model(f"linear_model_{args.target}.pkl")
     else:
         print("You need to have TRAINING_DATA_PATH specified in .env file")
