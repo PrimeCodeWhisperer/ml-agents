@@ -75,7 +75,7 @@ def upload_results_to_sheets(csv_path, spreadsheet_name, run_id):
 
     except Exception as e:
         print(f"Error uploading to Google Sheets: {e}")
-        return False
+        return False    
 
 
 if __name__ == "__main__":
