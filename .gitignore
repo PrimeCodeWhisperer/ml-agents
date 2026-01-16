@@ -114,3 +114,4 @@ Project/Build.app/
 # Environment files
 .env
 
+.python-version
