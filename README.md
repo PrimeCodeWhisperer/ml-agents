@@ -9,8 +9,8 @@ Open any code editor terminal, in this case VS Code
 In the code terminal open the ml-agents file found in the repository
 Make sure the python version is Python 3.10.11, you can check this by running python -V
 
-To activate the virtual environment, paste: "python -m venv .venv" 
-in the terminal and then add .venv\Scripts\Activate
+To activate the virtual environment, paste: "python -m venv venv" 
+in the terminal and then add venv\Scripts\Activate
 
 Now to run the 3DBall example type this into the code terminal:
 mlagents-learn config/ppo/3DBall.yaml --run-id=3DBallRun1
@@ -28,8 +28,18 @@ TRAINING_DATA_PATH=[path]
 
 To run more than one training without needing to run the previous command, you can use
 "python run_training.py [amount]". The results of the training runs will automatically be added to the global csv file (using google sheets) after you created a credentials.json file which contains your credentials to the google sheets.
+To run this however you must include the build folder from unity into your top directory. Make sure for MacOS you choose .app and for windows the .exe
 
-To run the learning algorithm on the global csv file run either "python random_forrest" or "python linear_regression.py"
+To run the learning algorithm on the global csv file run either "python random_forrest" or "python linear_regression.py" after downloading and adding the global csv file of the training run data into the .env file
+
+Dependencies and how to download them:
+(Use the pyton -m for safe install)
+python -m pip install gspread
+python -m pip install oauth2client
+python -m pip install pandas
+python -m pip install python-dotenv
+python -m pip install pyyaml
+
 
 
 Description of Data Labels:
