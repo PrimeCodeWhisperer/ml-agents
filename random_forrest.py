@@ -8,9 +8,12 @@ from sklearn.metrics import mean_absolute_error, r2_score
 import joblib
 
 class random_forrest:
-    def __init__(self, target, n_trees, seed):
+    def __init__(self, target, n_trees, seed, max_depth):
         #regressor is useful because we predict continuous time values
-        self.model = RandomForestRegressor(n_estimators=n_trees, random_state=seed) #choose number of trees and random seed
+        self.model = RandomForestRegressor(
+            n_estimators=n_trees, 
+            random_state=seed,
+            max_depth=max_depth) #choose number of trees and random seed
         self.model_columns = [] 
         self.target = target
 
@@ -29,7 +32,16 @@ class random_forrest:
             return
 
         #features we want to use for training
-        features = ['batch_size', 'num_cores', 'total_ram', 'scene', 'algorithm', 'total_steps']
+        features = [
+            'scene', 
+            'batch_size', 
+            'algorithm', 
+            'num_cores', 
+            'total_ram',
+            'cpu_model',
+            'hyper_learning_rate',
+            'operating_system'
+        ]
         #output we want to predict
     
 
@@ -84,14 +96,15 @@ if __name__ == "__main__":
     parser.add_argument("--target", type=str, default="training_time_s", help="The column name to predict (default: training_time_s)")
     parser.add_argument("--trees", type=int, default=100, help="Number of trees in the forest (default: 100)")
     parser.add_argument("--seed", type=int, default=95, help="Random seed for reproducibility (default: 95)")
-    
+    parser.add_argument("--depth", type=int, default=None, help="Max depth of trees (default: None/Unlimited)")
+
     args = parser.parse_args()
 
     if path:
         print(f"Configuration: Target={args.target}, Trees={args.trees}, Seed={args.seed}")
         
         #initialize with arguments
-        algo = random_forrest(args.target, args.trees, args.seed)
+        algo = random_forrest(args.target, args.trees, args.seed, args.depth)
         algo.train(path)
         
         #save sklearn model (decision tree itself) to file. The file can be loaded later for predictions.
