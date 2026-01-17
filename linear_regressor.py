@@ -34,7 +34,6 @@ class LinearRegressionModel:
             'total_ram',
             'cpu_model',
             'hyper_learning_rate',
-            'cpu_model'
         ]
         
 
