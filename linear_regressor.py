@@ -31,8 +31,10 @@ class LinearRegressionModel:
             'batch_size', 
             'algorithm', 
             'num_cores', 
-            'total_ram', 
-            'total_steps'
+            'total_ram',
+            'cpu_model',
+            'hyper_learning_rate',
+            'cpu_model'
         ]
         
 
