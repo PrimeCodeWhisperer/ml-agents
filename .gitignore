@@ -115,3 +115,9 @@ Project/Build.app/
 .env
 
 .python-version
+
+# Prediction models
+*.pkl
+
+#Images/Graphs
+*.png
