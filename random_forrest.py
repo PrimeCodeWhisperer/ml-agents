@@ -6,6 +6,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_absolute_error, r2_score
 import joblib
+import matplotlib.pyplot as plt
 
 class RandomForrestModel:
     def __init__(self, target, n_trees, seed, max_depth):
@@ -86,9 +87,11 @@ class RandomForrestModel:
         return r2_acc, mae_err
     
     def print_metrics(self, r2_acc, mae_err):
-        print(f"r2_score: {r2_acc:.3f}")
-        print(f"Average Error ({self.target}): {mae_err:.1f}")
+       
+        print(f"Accuracy (R2),  {r2_acc:.3f}")
+        print(f"Average Error: {mae_err:.3f}")
 
+    
 
     def check_feature_importance(self):
         if not hasattr(self.model, 'feature_importances_'):
@@ -141,8 +144,7 @@ class RandomForrestModel:
         print(agg_df.to_string(index=False, formatters={'Importance': '{:.1%}'.format}))
         print("="*40)
 
-        # Optional: Print raw top contributor just in case
-        print("\n(Note: Aggregated from specific One-Hot encoded columns)")
+        print("\n(Note: If you use the self collected data algorithm and scene are the same across all runs so it should be at 0%. This is still added so the model can be generally used.")
 
         
 
