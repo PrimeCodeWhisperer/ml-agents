@@ -13,7 +13,7 @@ class LinearRegressionModel:
         self.model = LinearRegression() 
         self.model_columns = [] 
 
-    def train(self, data_path):
+    def load_data(self, data_path):
         print(f"Loading {data_path}")
         
         try:
@@ -72,19 +72,32 @@ class LinearRegressionModel:
 
         self.model_columns = list(X.columns)
 
+        return X, y
+
+    def train(self, X,y):
+    
+
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
         print("Model training in progress...")
         self.model.fit(X_train, y_train)
 
         predictions = self.model.predict(X_test)
+        return y_test, predictions
         
-        acc = r2_score(y_test, predictions)
-        err = mean_absolute_error(y_test, predictions)
+        
+    def evaluate_predictions(self, y_test, predictions):
+        r2_acc = r2_score(y_test, predictions)
+        mae_err = mean_absolute_error(y_test, predictions)
 
-        # if R2 is negative we know its not linear so the random forest will be better. 
-        print(f"Accuracy (R2), negative means the data is not linear: {acc:.2f}")
-        print(f"Average Error: {err:.1f} seconds")
+        return r2_acc, mae_err
+        
+    def print_metrics(self, r2_acc, mae_err):
+       
+        print(f"Accuracy (R2), negative means the data is not linear: {r2_acc:.3f}")
+        print(f"Average Error: {mae_err:.3f}")
+
+        
 
     def save_model(self, filename):
         payload = {
@@ -110,9 +123,13 @@ if __name__ == "__main__":
     if path:
         print(f"Configuration: Target={args.target}")
 
-        algo = LinearRegressionModel(target=args.target)
-        algo.train(path)
+        linear_model = LinearRegressionModel(target=args.target)
+        X, y = linear_model.load_data(path)
+        y_test, predictions = linear_model.train(X,y)
+        r2_acc, mae_err =linear_model.evaluate_predictions(y_test, predictions)
+
+        linear_model.print_metrics(r2_acc, mae_err)
         
-        algo.save_model(f"linear_model_{args.target}.pkl")
+        linear_model.save_model(f"linear_model_{args.target}.pkl")
     else:
         print("You need to have TRAINING_DATA_PATH specified in .env file")

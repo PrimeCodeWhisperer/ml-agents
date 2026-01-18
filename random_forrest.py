@@ -8,7 +8,7 @@ from sklearn.metrics import mean_absolute_error, r2_score
 import joblib
 import matplotlib.pyplot as plt
 
-class random_forrest:
+class RandomForrestModel:
     def __init__(self, target, n_trees, seed, max_depth):
         #regressor is useful because we predict continuous time values
         self.model = RandomForestRegressor(
@@ -18,7 +18,8 @@ class random_forrest:
         self.model_columns = [] 
         self.target = target
 
-    def train(self, data_path):
+    def load_data(self, data_path):
+        
         print(f"Loading {data_path}")
         
         #check for excel or csv
@@ -52,6 +53,8 @@ class random_forrest:
             print(f"Those columns are missing: {missing}")
             return
 
+
+        df = df.dropna(subset=[self.target]) #drop NaN rows
         X = df[features]
         y = df[self.target]
 
@@ -60,7 +63,12 @@ class random_forrest:
 
         #save columns list so we can match the structure later when predicting
         self.model_columns = list(X.columns)
+        return X,y
 
+
+
+    def train(self, X, y):
+        
         #split data into  80% for training and 20% for testing
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
@@ -70,10 +78,13 @@ class random_forrest:
         #check performance
         predictions = self.model.predict(X_test)
         r2_acc = r2_score(y_test, predictions)
-        err = mean_absolute_error(y_test, predictions)
+        mae_err = mean_absolute_error(y_test, predictions)
 
-        print(f"Accuracy: {r2_acc * 100:.1f}%")
-        print(f"Average Error ({self.target}): {err:.1f}")
+        return r2_acc, mae_err
+    
+    def print_metrics(self, r2_acc, mae_err):
+        print(f"r2_score: {r2_acc:.3f}")
+        print(f"Average Error ({self.target}): {mae_err:.1f}")
 
         plt.figure(figsize=(10, 6))
         
@@ -114,9 +125,9 @@ class random_forrest:
         # 2. Define your original feature groups
         # These must match the names in your 'features' list exactly
         base_features = [
-            'scene', 
+            #'scene', 
             'batch_size', 
-            'algorithm', 
+            #'algorithm', 
             'num_cores', 
             'total_ram',
             'cpu_model',
@@ -175,23 +186,25 @@ if __name__ == "__main__":
     )
     
     parser.add_argument("--target", type=str, default="training_time_s", help="The column name to predict (default: training_time_s)")
-    parser.add_argument("--trees", type=int, default=100, help="Number of trees in the forest (default: 100)")
+    parser.add_argument("--trees", type=int, default=1000, help="Number of trees in the forest (default: 100)")
     parser.add_argument("--seed", type=int, default=95, help="Random seed for reproducibility (default: 95)")
     parser.add_argument("--depth", type=int, default=None, help="Max depth of trees (default: None/Unlimited)")
 
     args = parser.parse_args()
 
     if path:
-        print(f"Configuration: Target={args.target}, Trees={args.trees}, Seed={args.seed}")
+        print(f"Configuration: Target={args.target}, Trees={args.trees}, Seed={args.seed}, Max_depth={args.depth}")
         
         #initialize with arguments
-        algo = random_forrest(args.target, args.trees, args.seed, args.depth)
-        algo.train(path)
+        forest_model = RandomForrestModel(args.target, args.trees, args.seed, args.depth)
+        X,y = forest_model.load_data(path)
+        r2_acc, mae_error = forest_model.train(X,y)
+        forest_model.print_metrics(r2_acc, mae_error)
 
-        algo.check_feature_importance()
+        forest_model.check_feature_importance()
         
         #save sklearn model (decision tree itself) to file. The file can be loaded later for predictions.
-        algo.save_model(f"model_{args.target}.pkl")
+        forest_model.save_model(f"model_{args.target}.pkl")
 
     else:
         print("You need to have TRAINING_DATA_PATH specified in .env file")
