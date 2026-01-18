@@ -43,6 +43,25 @@ class LinearRegressionModel:
             print(f"Those columns are missing: {missing}")
             return
 
+        cols_to_check = features + [self.target]
+
+        numeric_cols = ['batch_size', 'num_cores', 'total_ram', 'hyper_learning_rate']
+        for col in numeric_cols:
+            if col in df.columns:
+                df[col] = pd.to_numeric(df[col], errors='coerce')
+
+        initial_count = len(df)
+        df = df.dropna(subset=cols_to_check)
+
+        dropped_count = initial_count - len(df)
+        if dropped_count > 0:
+            print(f"Skipped {dropped_count} rows containing missing (NaN) or incorrect values.")
+        
+        if df.empty:
+            print("Error: No data left after cleaning! Check your dataset.")
+            return
+
+
         X = df[features]
         y = df[self.target]
 

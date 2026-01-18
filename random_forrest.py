@@ -39,7 +39,6 @@ class random_forrest:
             'num_cores', 
             'total_ram',
             'cpu_model',
-            'hyper_learning_rate',
             'operating_system'
         ]
         #output we want to predict
@@ -74,6 +73,63 @@ class random_forrest:
         print(f"Accuracy: {r2_acc * 100:.1f}%")
         print(f"Average Error ({self.target}): {err:.1f}")
 
+
+    def check_feature_importance(self):
+        if not hasattr(self.model, 'feature_importances_'):
+            print("Error: This model doesn't support feature importance.")
+            return
+
+        # 1. Get raw importances
+        raw_importances = pd.DataFrame({
+            'Feature': self.model_columns,
+            'Importance': self.model.feature_importances_
+        })
+
+        # 2. Define your original feature groups
+        # These must match the names in your 'features' list exactly
+        base_features = [
+            'scene', 
+            'batch_size', 
+            'algorithm', 
+            'num_cores', 
+            'total_ram',
+            'cpu_model',
+            'hyper_learning_rate',
+            'operating_system'
+        ]
+
+        aggregated_data = []
+
+        # 3. Sum up the scores for each group
+        for base in base_features:
+            # We look for columns that start with the base name (for categorical)
+            # OR match exactly (for numerical like 'batch_size')
+            
+            # This filter finds all dummy columns belonging to this feature
+            # e.g. finds 'cpu_model_i386' and 'cpu_model_arm' for 'cpu_model'
+            mask = raw_importances['Feature'].str.startswith(base)
+            
+            # Calculate total importance for this base feature
+            total_score = raw_importances.loc[mask, 'Importance'].sum()
+            
+            aggregated_data.append({'Feature': base, 'Importance': total_score})
+
+        # 4. Create the final clean table
+        agg_df = pd.DataFrame(aggregated_data)
+        agg_df = agg_df.sort_values(by='Importance', ascending=False)
+
+        print("\n" + "="*40)
+        print(" AGGREGATED FEATURE IMPORTANCE")
+        print("="*40)
+        # Formats it as a percentage (e.g., 0.48 -> 48.0%)
+        print(agg_df.to_string(index=False, formatters={'Importance': '{:.1%}'.format}))
+        print("="*40)
+
+        # Optional: Print raw top contributor just in case
+        print("\n(Note: Aggregated from specific One-Hot encoded columns)")
+
+        
+
     #save the model to file
     def save_model(self, filename):
         payload = {
@@ -106,6 +162,8 @@ if __name__ == "__main__":
         #initialize with arguments
         algo = random_forrest(args.target, args.trees, args.seed, args.depth)
         algo.train(path)
+
+        algo.check_feature_importance()
         
         #save sklearn model (decision tree itself) to file. The file can be loaded later for predictions.
         algo.save_model(f"model_{args.target}.pkl")
