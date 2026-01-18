@@ -6,6 +6,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_absolute_error, r2_score
 import joblib
+import matplotlib.pyplot as plt
 
 class random_forrest:
     def __init__(self, target, n_trees, seed, max_depth):
@@ -74,6 +75,30 @@ class random_forrest:
         print(f"Accuracy: {r2_acc * 100:.1f}%")
         print(f"Average Error ({self.target}): {err:.1f}")
 
+        plt.figure(figsize=(10, 6))
+        
+        # 1. Plot the actual data points
+        # X-axis = Real Values, Y-axis = Predicted Values
+        plt.scatter(y_test, predictions, alpha=0.5, color='blue', label='Predictions')
+
+        # 2. Draw the "Perfect Prediction" line (The 45-degree diagonal)
+        # If a dot falls exactly on this line, the prediction was perfect.
+        min_val = min(y_test.min(), predictions.min())
+        max_val = max(y_test.max(), predictions.max())
+        plt.plot([min_val, max_val], [min_val, max_val], color='red', linestyle='--', linewidth=2, label='Perfect Fit')
+
+        # 3. Labels and Title
+        acc = r2_score(y_test, predictions)
+        plt.title(f'Actual vs. Predicted {self.target}\nAccuracy: {acc:.1%} | MAE: {err:.1f}')
+        plt.xlabel(f'Actual {self.target}')
+        plt.ylabel(f'Predicted {self.target}')
+        plt.legend()
+        plt.grid(True)
+
+        # 4. Show the plot
+        print("Displaying graph...")
+        plt.show()
+
 
     def check_feature_importance(self):
         if not hasattr(self.model, 'feature_importances_'):
@@ -126,8 +151,7 @@ class random_forrest:
         print(agg_df.to_string(index=False, formatters={'Importance': '{:.1%}'.format}))
         print("="*40)
 
-        # Optional: Print raw top contributor just in case
-        print("\n(Note: Aggregated from specific One-Hot encoded columns)")
+        print("\n(Note: If you use the self collected data algorithm and scene are the same across all runs so it should be at 0%. This is still added so the model can be generally used.")
 
         
 
