@@ -82,34 +82,6 @@ class RandomForrestModel:
 
         return r2_acc, mae_err
     
-    def print_metrics(self, r2_acc, mae_err):
-        print(f"r2_score: {r2_acc:.3f}")
-        print(f"Average Error ({self.target}): {mae_err:.1f}")
-
-        plt.figure(figsize=(10, 6))
-        
-        # 1. Plot the actual data points
-        # X-axis = Real Values, Y-axis = Predicted Values
-        plt.scatter(y_test, predictions, alpha=0.5, color='blue', label='Predictions')
-
-        # 2. Draw the "Perfect Prediction" line (The 45-degree diagonal)
-        # If a dot falls exactly on this line, the prediction was perfect.
-        min_val = min(y_test.min(), predictions.min())
-        max_val = max(y_test.max(), predictions.max())
-        plt.plot([min_val, max_val], [min_val, max_val], color='red', linestyle='--', linewidth=2, label='Perfect Fit')
-
-        # 3. Labels and Title
-        acc = r2_score(y_test, predictions)
-        plt.title(f'Actual vs. Predicted {self.target}\nAccuracy: {acc:.1%} | MAE: {err:.1f}')
-        plt.xlabel(f'Actual {self.target}')
-        plt.ylabel(f'Predicted {self.target}')
-        plt.legend()
-        plt.grid(True)
-
-        # 4. Show the plot
-        print("Displaying graph...")
-        plt.show()
-
 
     def check_feature_importance(self):
         if not hasattr(self.model, 'feature_importances_'):
@@ -199,7 +171,6 @@ if __name__ == "__main__":
         forest_model = RandomForrestModel(args.target, args.trees, args.seed, args.depth)
         X,y = forest_model.load_data(path)
         r2_acc, mae_error = forest_model.train(X,y)
-        forest_model.print_metrics(r2_acc, mae_error)
 
         forest_model.check_feature_importance()
         
