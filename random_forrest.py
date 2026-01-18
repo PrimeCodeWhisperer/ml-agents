@@ -39,6 +39,7 @@ class random_forrest:
             'num_cores', 
             'total_ram',
             'cpu_model',
+            'hyper_learning_rate',
             'operating_system'
         ]
         #output we want to predict
