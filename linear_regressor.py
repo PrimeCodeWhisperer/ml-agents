@@ -83,12 +83,14 @@ class LinearRegressionModel:
         self.model.fit(X_train, y_train)
 
         predictions = self.model.predict(X_test)
+        return y_test, predictions
         
+        
+    def evaluate_predictions(self, y_test, predictions):
         r2_acc = r2_score(y_test, predictions)
         mae_err = mean_absolute_error(y_test, predictions)
 
         return r2_acc, mae_err
-
         
     def print_metrics(self, r2_acc, mae_err):
        
@@ -123,7 +125,9 @@ if __name__ == "__main__":
 
         linear_model = LinearRegressionModel(target=args.target)
         X, y = linear_model.load_data(path)
-        r2_acc, mae_err =linear_model.train(X, y)
+        y_test, predictions = linear_model.train(X,y)
+        r2_acc, mae_err =linear_model.evaluate_predictions(y_test, predictions)
+
         linear_model.print_metrics(r2_acc, mae_err)
         
         linear_model.save_model(f"linear_model_{args.target}.pkl")
