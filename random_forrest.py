@@ -76,6 +76,10 @@ class RandomForrestModel:
 
         #check performance
         predictions = self.model.predict(X_test)
+        return y_test, predictions
+       
+    
+    def evaluate_predictions(self, y_test, predictions):
         r2_acc = r2_score(y_test, predictions)
         mae_err = mean_absolute_error(y_test, predictions)
 
@@ -174,7 +178,8 @@ if __name__ == "__main__":
         #initialize with arguments
         forest_model = RandomForrestModel(args.target, args.trees, args.seed, args.depth)
         X,y = forest_model.load_data(path)
-        r2_acc, mae_error = forest_model.train(X,y)
+        y_test, predictions = forest_model.train(X,y)
+        r2_acc, mae_error = forest_model.evaluate_predictions(y_test, predictions)
         forest_model.print_metrics(r2_acc, mae_error)
 
         forest_model.check_feature_importance()
