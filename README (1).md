@@ -123,14 +123,14 @@ conda --version  # verify installation
 
 **macOS/Linux:**
 ```bash
-cd ~/Documents/Uni_Projects/ml-agents  # your project directory
+cd ~/your/project/ml-agents  # your project directory
 conda create -n mlagents python=3.10.12 -y
 conda activate mlagents
 ```
 
 **Windows (Anaconda Prompt or PowerShell):**
 ```bash
-cd C:\Users\YourUsername\Documents\Uni_Projects\ml-agents
+cd C:\Users\YourUsername\your\project\ml-agents # your project directory
 conda create -n mlagents python=3.10.12 -y
 conda activate mlagents
 ```
@@ -195,6 +195,7 @@ Create a `.env` file in the project root with the following variables:
 UNITY_ENV_PATH=/path/to/unity/build
 CONFIG_PATH=/path/to/config
 TRAINING_DATA_PATH=/path/to/training/data
+PKL_PATH=/path/to/PKLFolder 
 ```
 
 **Windows:**
@@ -202,6 +203,7 @@ TRAINING_DATA_PATH=/path/to/training/data
 UNITY_ENV_PATH=C:\path\to\unity\build
 CONFIG_PATH=C:\path\to\config
 TRAINING_DATA_PATH=C:\path\to\training\data
+PKL_PATH=/path/to/PKLFolder 
 ```
 
 ### 6. Google Sheets Integration (Optional)
@@ -267,7 +269,7 @@ The Random Forest trainer supports three cross-validation strategies and multipl
 #### Basic Usage
 
 ```bash
-python random_forest_trainer.py
+python -m ml-models.models.random_forest_trainer
 ```
 
 This runs with default settings: K-Fold cross-validation, predicting `steps_per_second`, with 100 trees.
@@ -297,17 +299,17 @@ This runs with default settings: K-Fold cross-validation, predicting `steps_per_
 
 **Predict training time using K-Fold with 200 trees:**
 ```bash
-python random_forest_trainer.py --strategy kfold --target training_time_s --trees 200
+python -m ml-models.models.random_forest_trainer --strategy kfold --target training_time_s --trees 200
 ```
 
 **Predict RAM usage with GroupKFold (hardware-aware splitting):**
 ```bash
-python random_forest_trainer.py --strategy groupkfold --target avg_ram_usage --trees 150 --depth 20
+python -m ml-models.models.random_forest_trainer --strategy groupkfold --target avg_ram_usage --trees 150 --depth 20
 ```
 
 **Quick test with simple train-test split:**
 ```bash
-python random_forest_trainer.py --strategy split --target steps_per_second --trees 50
+python -m ml-models.models.random_forest_trainer --strategy split --target steps_per_second --trees 50
 ```
 
 #### Output
@@ -325,7 +327,7 @@ Linear regression provides a simpler, interpretable baseline model for compariso
 #### Basic Usage
 
 ```bash
-python linear_regressor.py
+python -m ml-models.models.linear_regressor
 ```
 
 This predicts `training_time_s` by default.
@@ -339,12 +341,12 @@ This predicts `training_time_s` by default.
 
 **Predict steps per second:**
 ```bash
-python linear_regressor.py --target steps_per_second
+python -m ml-models.models.linear_regressor --target steps_per_second
 ```
 
 **Predict average RAM usage:**
 ```bash
-python linear_regressor.py --target avg_ram_usage
+python -m ml-models.models.linear_regressor --target avg_ram_usage
 ```
 
 #### Output
@@ -419,7 +421,7 @@ cd ~/Documents/Uni_Projects/ml-agents
 conda activate mlagents  # or: source venv/bin/activate
 
 # Run training
-python run_training.py 1
+python \experiments\run_training 1
 ```
 
 **Windows:**
@@ -431,7 +433,7 @@ cd C:\Users\YourUsername\Documents\Uni_Projects\ml-agents
 conda activate mlagents  # or: venv\Scripts\activate
 
 # Run training
-python run_training.py 1
+python \experiments\run_training 1
 ```
 
 ### Ending Your Work Session
