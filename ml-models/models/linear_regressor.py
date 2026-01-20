@@ -99,13 +99,18 @@ class LinearRegressionModel:
 
         
 
-    def save_model(self, filename):
+    def save_model(self, filename, output_dir="PKL"):
+        os.makedirs(output_dir, exist_ok=True)
+
+        full_path = os.path.join(output_dir, filename)
+
         payload = {
-            'model': self.model,
-            'columns': self.model_columns
-        }
-        joblib.dump(payload, filename)
-        print(f"Saved model to {filename}")
+            "model": self.model,
+            "columns": self.model_columns,
+}
+
+        joblib.dump(payload, full_path)
+        print(f"Saved model to {full_path}")
 
 
 if __name__ == "__main__":

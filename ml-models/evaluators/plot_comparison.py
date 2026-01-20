@@ -18,7 +18,10 @@ if not data_path or not os.path.exists(data_path):
 
 # Load dataset
 print(f"Loading {data_path}")
-df = pd.read_csv(data_path)
+if data_path.endswith(".xlsx"):
+    df = pd.read_excel(data_path)
+else:
+    df = pd.read_csv(data_path)
 
 # Define features and target
 features = [
@@ -96,15 +99,10 @@ for idx, (model_name, model) in enumerate(models.items()):
     ax.set_ylim([-0.2, 1.05])
 
 plt.tight_layout()
-plt.savefig('model_comparison_curves.png', dpi=300, bbox_inches='tight')
-print("\nPlot saved as 'model_comparison_curves.png'")
+full_path = os.path.join("Graphs", "model_comparison_curves.png")
+plt.savefig(full_path, dpi=300, bbox_inches='tight')
+print(f"\nPlot saved as {full_path}")
 plt.show()
-
-
-# Print summary statistics
-print("\n" + "="*60)
-print("SUMMARY STATISTICS")
-print("="*60)
 
 for model_name, model in models.items():
     train_sizes_abs, train_scores, val_scores = learning_curve(

@@ -104,8 +104,7 @@ def create_metrics_graph(target, results):
                 ha='center', va='bottom', fontsize=10)
 
     plt.tight_layout()
-    plt.savefig(f'comparison_{target}_metrics.png', dpi=300, bbox_inches='tight')
-    print(f"Saved: comparison_{target}_metrics.png")
+    save_plot(f'comparison_{target}_metrics.png')
     plt.close()
 
 def create_scatter_plot(target, model_name, actual, preds, r2):
@@ -126,9 +125,7 @@ def create_scatter_plot(target, model_name, actual, preds, r2):
     ax.legend()
 
     filename = f'comparison_{target}_{model_name.lower().replace(" ", "_")}.png'
-    plt.tight_layout()
-    plt.savefig(filename, dpi=300, bbox_inches='tight')
-    print(f"Saved: {filename}")
+    save_plot(filename + ".png")
     plt.close()
 
 def create_combined_scatter_plot(target, results):
@@ -152,10 +149,9 @@ def create_combined_scatter_plot(target, results):
     ax.legend(fontsize=11)
     ax.grid(True, alpha=0.3)
 
-    filename = f'comparison_{target}_combined.png'
+    filename = f'comparison_{target}_combined_scatter.png'
     plt.tight_layout()
-    plt.savefig(filename, dpi=300, bbox_inches='tight')
-    print(f"Saved: {filename}")
+    save_plot(filename)
     plt.close()
 
 def print_results(target, results):
@@ -169,6 +165,13 @@ def print_results(target, results):
     print(f"{'Random Forest':<20} {results['rf']['r2']:<15.4f} {results['rf']['mae']:<15.2f} {results['rf']['rmse']:<15.2f}")
     print(f"{'Linear Regression':<20} {results['lr']['r2']:<15.4f} {results['lr']['mae']:<15.2f} {results['lr']['rmse']:<15.2f}")
     print("="*70 + "\n")
+
+def save_plot(filename, output_dir="Graphs"):
+    os.makedirs(output_dir, exist_ok=True)
+
+    full_path = os.path.join(output_dir, filename)
+    plt.savefig(full_path, bbox_inches="tight")
+    print(f"Saved plot to {full_path}")
 
 def main():
     parser = argparse.ArgumentParser(description='Compare Random Forest vs Linear Regression')
@@ -185,9 +188,11 @@ def main():
 
     # Load models
     try:
-        rf_model, rf_columns = load_model(f'model_{target}.pkl')
-        lr_model, lr_columns = load_model(f'linear_model_{target}.pkl')
+        pkl_path = os.getenv("PKL_PATH", "")
+        rf_model, rf_columns = load_model(f'{pkl_path}model_{target}.pkl')
+        lr_model, lr_columns = load_model(f'{pkl_path}linear_model_{target}.pkl')
     except Exception as e:
+
         print(f"Error: Could not load models for {target}: {e}")
         sys.exit(1)
 

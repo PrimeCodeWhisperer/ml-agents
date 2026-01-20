@@ -250,15 +250,18 @@ class RandomForestTrainer:
         else:
             print("No feature importance data available.")
 
-    def save_model(self, filename):
-        """Save trained model to file."""
-        if self.model is None:
-            print("No model to save. Train a model first.")
-            return
+    def save_model(self, filename, output_dir="PKL"):
+        os.makedirs(output_dir, exist_ok=True)
 
-        payload = {"model": self.model, "columns": self.model_columns}
-        joblib.dump(payload, filename)
-        print(f"Saved model to {filename}")
+        full_path = os.path.join(output_dir, filename)
+
+        payload = {
+            "model": self.model,
+            "columns": self.model_columns,
+}
+
+        joblib.dump(payload, full_path)
+        print(f"Saved model to {full_path}")
 
 
 def main():
