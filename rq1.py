@@ -1,7 +1,7 @@
 import os
 import matplotlib.pyplot as plt
-from linear_regressor import LinearRegressionModel
-from random_forrest import RandomForrestModel
+from ml-models.models.linear_regressor import LinearRegressionModel
+from ml-models.models.random_forrest import RandomForrestModel
 from dotenv import load_dotenv
 import numpy as np
 
