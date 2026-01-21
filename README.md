@@ -33,6 +33,8 @@ A machine learning project using Unity ML-Agents for training reinforcement lear
       - [Output](#output-1)
     - [Choosing Between Models](#choosing-between-models)
     - [Prerequisites](#prerequisites-1)
+  - [Replicating Research Experiments](#replicating-research-experiments)
+    - [Research Questions](#research-questions)
   - [Data Labels](#data-labels)
     - [Training Run Metadata](#training-run-metadata)
     - [Performance Metrics](#performance-metrics)
@@ -52,7 +54,6 @@ A machine learning project using Unity ML-Agents for training reinforcement lear
     - [Dependency Conflicts](#dependency-conflicts)
     - [Import Errors](#import-errors)
     - [Windows PATH Issues](#windows-path-issues)
-  - [Project Structure](#project-structure)
   - [Additional Resources](#additional-resources)
   - [License](#license)
 
@@ -375,6 +376,73 @@ TRAINING_DATA_PATH=/path/to/your/training_data.csv
 
 The data file can be in `.csv` or `.xlsx` format.
 
+## Replicating Research Experiments
+
+To replicate the experiments from our research paper investigating ML-Agents training prediction:
+
+### Research Questions
+
+The experiments evaluate four research questions using both Linear Regression and Random Forest models:
+
+**RQ1: Steps to Threshold** - Predict training steps needed to reach mean reward of 100
+```bash
+# Linear Regression
+python -m ml-models.models.linear_regressor --target steps_to_threshold
+
+# Random Forest (80-20 split)
+python -m ml-models.models.random_forest_trainer --strategy split --target steps_to_threshold
+
+# Random Forest (K-Fold cross-validation)
+python -m ml-models.models.random_forest_trainer --strategy kfold --target steps_to_threshold
+```
+
+**RQ2: Training Speed** - Predict steps per second and estimate total training time
+```bash
+# Linear Regression
+python -m ml-models.models.linear_regressor --target steps_per_second
+
+# Random Forest
+python -m ml-models.models.random_forest_trainer --strategy split --target steps_per_second
+```
+
+**RQ3: Memory Usage** - Predict RAM consumption during training
+```bash
+# Average RAM - Linear Regression
+python -m ml-models.models.linear_regressor --target avg_ram_usage
+
+# Average RAM - Random Forest
+python -m ml-models.models.random_forest_trainer --strategy split --target avg_ram_usage
+
+# Peak RAM - Linear Regression
+python -m ml-models.models.linear_regressor --target max_ram_usage
+
+# Peak RAM - Random Forest
+python -m ml-models.models.random_forest_trainer --strategy split --target max_ram_usage
+```
+
+**RQ4: Cross-Machine Generalization** - Test model performance on unseen hardware
+```bash
+# GroupKFold validation (groups by CPU model to test on different hardware)
+python -m ml-models.models.random_forest_trainer --strategy groupkfold --target steps_to_threshold
+python -m ml-models.models.random_forest_trainer --strategy groupkfold --target steps_per_second
+python -m ml-models.models.random_forest_trainer --strategy groupkfold --target avg_ram_usage
+python -m ml-models.models.random_forest_trainer --strategy groupkfold --target max_ram_usage
+```
+
+**Plots**
+For comparison of any random forest algorithm to linear regression you can visualize the plots using the following command:
+
+```bash
+python -m ml-models.evaluators.model_comparison --target avg_ram_usage
+```
+
+Example:
+```bash
+python -m ml-models.evaluators.model_comparison --target <your-target>
+```
+
+**Notes**: Be sure you have pkl files for both random forest and linear regression when running the plot module
+
 ## Data Labels
 
 ### Training Run Metadata
@@ -628,12 +696,6 @@ conda activate mlagents
 2. Edit "Path" under User variables
 3. Add: `C:\Users\YourUsername\miniconda3\envs\mlagents\Scripts`
 4. Restart terminal
-
-## Project Structure
-
-```
-
-```
 
 ## Additional Resources
 
