@@ -16,7 +16,6 @@ def upload_results_to_sheets(csv_path, spreadsheet_name, run_id):
         bool: True if successful, False otherwise
     """
     try:
-        # Set up credentials
         scope = [
             "https://spreadsheets.google.com/feeds",
             "https://www.googleapis.com/auth/spreadsheets",
@@ -29,34 +28,28 @@ def upload_results_to_sheets(csv_path, spreadsheet_name, run_id):
 
         client = gspread.authorize(credentials)
 
-        # Open the spreadsheet
+        
         spreadsheet = client.open(spreadsheet_name)
         worksheet = spreadsheet.sheet1
 
-        # Read CSV data
         df = pd.read_csv(csv_path)
 
         if df.empty:
             print("CSV is empty, nothing to upload")
             return False
 
-        # Check if sheet is empty (needs headers)
         existing_data = worksheet.get_all_values()
 
         if len(existing_data) == 0:
-            # Sheet is empty, add headers first
             headers = df.columns.tolist()
             worksheet.append_row(headers)
             print("Added headers to Google Sheet")
 
-        # Get the last row from the CSV (most recent training data)
         last_row = df.tail(1)
         values_to_append = last_row.values.tolist()[0]
 
-        # Convert any NaN or None values to empty string
         values_to_append = [str(v) if pd.notna(v) else "" for v in values_to_append]
 
-        # Append the single row (much faster than batch operations for single rows)
         worksheet.append_row(values_to_append)
 
         return True

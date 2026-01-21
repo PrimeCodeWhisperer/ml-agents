@@ -23,7 +23,7 @@ if data_path.endswith(".xlsx"):
 else:
     df = pd.read_csv(data_path)
 
-# Define features and target
+#Define the features and target
 features = [
     'num_cores',
     'total_ram',
@@ -51,7 +51,7 @@ y = y[valid_indices]
 
 print(f"Using {len(X)} samples for training")
 
-# Define models
+# Define which models
 models = {
     'Random Forest': RandomForestRegressor(n_estimators=100, random_state=95, n_jobs=-1),
     'Linear Regression': LinearRegression()
@@ -99,6 +99,7 @@ for idx, (model_name, model) in enumerate(models.items()):
     ax.set_ylim([-0.2, 1.05])
 
 plt.tight_layout()
+#Now into the grpahs folder
 full_path = os.path.join("Graphs", "model_comparison_curves.png")
 plt.savefig(full_path, dpi=300, bbox_inches='tight')
 print(f"\nPlot saved as {full_path}")

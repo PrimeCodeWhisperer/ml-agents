@@ -51,9 +51,6 @@ plt.tight_layout()
 plt.savefig("predicted_vs_actual.png")
 plt.show()
 
-# Bar Plot: R² and MAE Comparison
-
-
 
 models = ["Linear Regression", "Random Forest"]
 r2_scores = [lin_r2, rf_r2]

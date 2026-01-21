@@ -43,7 +43,7 @@ class RandomForestTrainer:
         features = ['scene', 'batch_size', 'algorithm', 'num_cores',
                    'total_ram', 'cpu_model', 'hyper_learning_rate', 'operating_system']
 
-        # Check for missing columns
+        #check for missing columns
         missing = [c for c in features + [self.target] if c not in df.columns]
         if missing:
             print(f"Missing columns: {missing}")
@@ -81,15 +81,15 @@ class RandomForestTrainer:
 
         df = df.dropna(subset=[self.target])
 
-        features = ["num_cores", "total_ram", "avg_tracked_cpu_percent",
-                   "avg_ram_usage", "batch_size"]
+        features = ['scene', 'batch_size', 'algorithm', 'num_cores',
+                   'total_ram', 'cpu_model', 'hyper_learning_rate', 'operating_system']
 
         missing = [c for c in features + [self.target] if c not in df.columns]
         if missing:
             print(f"Missing columns: {missing}")
             return
 
-        X = df[features]
+        X = pd.get_dummies(df[features])
         y = df[self.target]
         self.model_columns = list(X.columns)
 
@@ -139,15 +139,17 @@ class RandomForestTrainer:
 
         df = df.dropna(subset=["cpu_model", self.target])
 
-        features = ["num_cores", "total_ram", "avg_tracked_cpu_percent",
-                   "avg_ram_usage", "batch_size"]
+        features = ['scene', 'batch_size', 'algorithm', 'num_cores',
+                   'total_ram', 'cpu_model', 'hyper_learning_rate', 'operating_system']
 
         missing = [c for c in features + [self.target] if c not in df.columns]
         if missing:
             print(f"Missing columns: {missing}")
             return
 
-        X = df[features]
+        groups = df["cpu_model"]
+        
+        X = pd.get_dummies(df[features])
         y = df[self.target]
         groups = df["cpu_model"]
         self.model_columns = list(X.columns)
